@@ -1,6 +1,6 @@
-<?
+<?php
 
-namespace App\DTO;
+namespace App\Dto;
 
 use DateTime;
 
@@ -47,19 +47,25 @@ class OrderDTO
     public readonly int $orderStatusId;
 
     /**
-     * When the order is placed
+     * Amount of reward point claimed
      *
      * @var int
      */
-    public readonly int $createdAt;
+    public readonly int $pointClaimed;
+
+    /**
+     * When the order is placed
+     *
+     * @var int|null
+     */
+    public readonly int|null $createdAt;
 
     /**
      * When the order is updated
      *
-     * @var int
+     * @var int|null
      */
-    public readonly int $updatedAt;
-
+    public readonly int|null $updatedAt;
 
     /**
      * Setter for order id
@@ -67,9 +73,9 @@ class OrderDTO
      * @param int|string $id
      * @return $this
      */
-    public function setOrderId(int|string $id)
+    public function setId(int|string $id)
     {
-        $this->$id = (int) $id;
+        $this->id = (int) $id;
 
         return $this;
     }
@@ -95,7 +101,7 @@ class OrderDTO
      */
     public function setTotalSales(int|string $totalSales)
     {
-        $this->totalSales = (int) $totalSales;
+        $this->totalSales = intval($totalSales);
 
         return $this;
     }
@@ -128,16 +134,32 @@ class OrderDTO
     }
 
     /**
+     * Setter for order Claimed Point
+     * 
+     * @param int|string $pointClaimed
+     * @return $this
+     */
+    public function setPointClaimed(int|string $pointClaimed)
+    {
+        $this->pointClaimed = intval($pointClaimed);
+
+        return $this;
+    }
+
+    /**
      * Setter for created at in Unix seconds
      * 
      * @param int|DateTime $createdAt
      * @return $this
      */
-    public function setCreatedAt(int|DateTime $createdAt)
+    public function setCreatedAt(int|string|null|DateTime $createdAt)
     {
         if ($createdAt instanceof DateTime) {
-
             $createdAt = $createdAt->getTimestamp();
+        }
+
+        if (gettype($createdAt) == 'string') {
+            $createdAt = strtotime($createdAt);
         }
 
         $this->createdAt = $createdAt;
@@ -151,15 +173,33 @@ class OrderDTO
      * @param int|DateTime $updatedAt
      * @return $this
      */
-    public function setUpdatedAt(int|DateTime $updatedAt)
+    public function setUpdatedAt(int|string|null|DateTime $updatedAt)
     {
         if ($updatedAt instanceof DateTime) {
-
             $updatedAt = $updatedAt->getTimestamp();
+        }
+
+        if (gettype($updatedAt) == 'string') {
+            $updatedAt = strtotime($updatedAt);
         }
 
         $this->updatedAt = $updatedAt;
 
         return $this;
+    }
+
+    /**
+     * Setter to update all related information from table
+     * 
+     */
+    public function updateFromQuery(array $queryData)
+    {
+        $this->setId($queryData["id"]);
+        $this->setUserId($queryData["user_id"]);
+        $this->setTotalSales($queryData["total_sales"]);
+        $this->setCurrencyId($queryData["currency_id"]);
+        $this->setOrderStatusId($queryData["order_status_id"]);
+        $this->setCreatedAt($queryData["created_at"]);
+        $this->setUpdatedAt($queryData["updated_at"]);
     }
 }
