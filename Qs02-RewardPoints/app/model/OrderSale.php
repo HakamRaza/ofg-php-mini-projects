@@ -34,9 +34,6 @@ class OrderSale
                 "createdAt" => $orderPayload->createdAt,
                 "totalSales" => (int) $this->conversion->convertDecimalToInt($orderPayload->totalSales),
             ];
-
-            // reuse previous dto
-            $orderDto = $orderPayload;
         } else {
             $query = 'SELECT * FROM `' . $this->tableName . '` 
             WHERE id = :orderId 
@@ -45,8 +42,6 @@ class OrderSale
             $param = [
                 "orderId" => $orderPayload,
             ];
-
-            $orderDto = new OrderDTO();
         }
 
         $statement = $this->db->prepare($query);
@@ -57,26 +52,28 @@ class OrderSale
             return null;
         }
 
+        $orderDto = new OrderDTO();
         $orderDto->updateFromQuery($order);
+        $orderDto->setPointClaimed($orderPayload->pointClaimed ?: 0);
 
         return $orderDto;
     }
 
     public function create(OrderDTO $orderPayload)
     {
-        // $query = 'INSERT INTO `' . $this->tableName . '` (user_id, total_sales, currency_id, order_status_id) 
-        // VALUES (:userId, :totalSales, :currencyId, :orderStatusId);';
+        $query = 'INSERT INTO `' . $this->tableName . '` (user_id, total_sales, currency_id, order_status_id) 
+        VALUES (:userId, :totalSales, :currencyId, :orderStatusId);';
 
-        // $statement = $this->db->prepare($query);
+        $statement = $this->db->prepare($query);
 
-        // $statement->execute([
-        //     "userId" => $orderPayload->userId,
-        //     "totalSales" => (int) $this->conversion->convertDecimalToInt($orderPayload->totalSales),
-        //     "currencyId" => $orderPayload->currencyId,
-        //     "orderStatusId" => $orderPayload->orderStatusId
-        // ]);
+        $statement->execute([
+            "userId" => $orderPayload->userId,
+            "totalSales" => (int) $this->conversion->convertDecimalToInt($orderPayload->totalSales),
+            "currencyId" => $orderPayload->currencyId,
+            "orderStatusId" => $orderPayload->orderStatusId
+        ]);
 
-        return $this->findFirst(14);
+        return $this->findFirst($orderPayload);
     }
 
     public function update(OrderDTO $orderPayload, string $action)
