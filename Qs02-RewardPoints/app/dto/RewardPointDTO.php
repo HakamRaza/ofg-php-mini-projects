@@ -1,6 +1,6 @@
-<?
+<?php
 
-namespace App\DTO;
+namespace App\Dto;
 
 use DateTime;
 
@@ -23,9 +23,6 @@ class RewardPointDTO
      * @var int
      */
     public readonly int $userId;
-
-
-
 
     /**
      * When the order is placed
