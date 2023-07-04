@@ -2,10 +2,10 @@
 
 namespace App\Enums;
 
-enum TransactionType: Int
+enum TransactionType
 {
-    case Debit = 1;
-    case Credit = 2;
+    case Debit;
+    case Credit;
 
 
     public function toSring()
@@ -15,5 +15,12 @@ enum TransactionType: Int
             self::Credit => 'Credit',
         };
     }
+
+    public function value()
+    {
+        return match ($this) {
+            self::Debit => 1,
+            self::Credit => 2,
+        };
+    }
 }
-?>

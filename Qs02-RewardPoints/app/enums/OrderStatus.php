@@ -2,11 +2,11 @@
 
 namespace App\Enums;
 
-enum OrderStatus: int
+enum OrderStatus
 {
-    case Pending = 1;
-    case InProgress = 2;
-    case Complete = 3;
+    case Pending;
+    case InProgress;
+    case Complete;
 
     public function toSring()
     {
@@ -14,6 +14,15 @@ enum OrderStatus: int
             self::Pending => 'Pending',
             self::InProgress => 'In Progress',
             self::Complete => 'Complete',
+        };
+    }
+
+    public function value()
+    {
+        return match ($this) {
+            self::Pending => 1,
+            self::InProgress => 2,
+            self::Complete => 3,
         };
     }
 }
