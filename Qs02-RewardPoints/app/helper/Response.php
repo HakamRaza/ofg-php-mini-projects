@@ -9,7 +9,7 @@ namespace App\Helper;
  */
 class Response
 {
-    public function sendResponse(array|string $data = [], int $httpCode = 200)
+    public function sendResponse(mixed $data = [], int $httpCode = 200)
     {
         return [
             "code" => $httpCode,

@@ -32,11 +32,11 @@ class OrderController
     /**
      * Registed new order
      */
-    public function orderPlace(OrderDTO $orderPayload)
+    public function place(OrderDTO $orderPayload): OrderDTO
     {
         // any point claim ?
         $pointClaimed = $orderPayload->pointClaimed;
-        
+
         // check existing point
         if ($pointClaimed > 0) {
             $currentPoint = $this->reward->available();
@@ -49,14 +49,13 @@ class OrderController
         // update status save order
         $orderPayload->setOrderStatusId(OrderStatus::Pending->value());
         $order = $this->order->create($orderPayload);
-        var_dump($order);
-        die();
 
+        // record point floating
+        if ($pointClaimed > 0) {
+            $this->reward->create($order->userId, TransactionType::Debit, $pointClaimed);
+        }
 
-
-        // else {
-        //     $this->reward->create($orderPayload->userId, TransactionType::Debit, $pointClaimed);
-        // }
+        return $order;
     }
 
 
@@ -85,7 +84,7 @@ class OrderController
     /**
      * Get effective debit/credit point to be claim for each order
      */
-    private function calculateEffectivePointClaim(float $totalSales, float $pointClaimed)
+    private function calculateEffectivePointClaim(int $totalSales, int $pointClaimed)
     {
     }
 }

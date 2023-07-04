@@ -51,7 +51,7 @@ class Main
         $this->conversion = new Conversion();
     }
 
-    public function createOrder()
+    public function add()
     {
         $dateTime = new DateTime();
         $newOrder = new OrderDTO();
@@ -60,24 +60,25 @@ class Main
         $newOrder->setUserId(1);
         $newOrder->setUpdatedAt($dateTime);
         $newOrder->setCreatedAt($dateTime);
-        $newOrder->setPointClaimed($this->conversion->convertDecimalToInt(00));
+        $newOrder->setPointClaimed($this->conversion->convertDecimalToInt(90));
 
         try {
-            $response = $this->controller->orderPlace($newOrder);
+            $order = $this->controller->place($newOrder);
+            return $this->response->sendResponse($order);
         } catch (\Throwable $th) {
-            var_dump($th);
+
+            var_dump($th->getMessage());
             return $this->response->sendResponse('Failed to place order', 500);
         }
-
-        // return $this->response->sendResponse($response);
     }
+
 
     public function acceptOrder(int $orderId)
     {
     }
 }
 
-(new Main())->createOrder();
+(new Main())->add();
 
 
 ?>
