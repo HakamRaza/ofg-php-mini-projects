@@ -13,16 +13,21 @@ class Currency
         $this->db = new DB();
     }
 
-    public function findCurrency(string $currencyCode)
+    /**
+     * Find currency detail
+     * 
+     * @return array|null $query
+     */
+    public function findCurrency(int $currencyId)
     {
-        $query = 'SELECT * FROM `currency` WHERE currency_code = :currencyCode';
+        $query = 'SELECT * FROM `currency` WHERE id = :currencyId';
 
         $statement = $this->db->prepare($query);
 
         $statement->execute([
-            "currencyCode" => $currencyCode,
+            "currencyId" => $currencyId,
         ]);
 
-        return $statement->fetch() ?: [];
+        return $statement->fetch() ?: null;
     }
 }

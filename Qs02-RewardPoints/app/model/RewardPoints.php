@@ -57,4 +57,19 @@ class RewardPoints
             "points" => $pointClaim
         ]);
     }
+
+    /**
+     * Delete records
+     * 
+     */
+    public function destroyOrderRecord(int $orderId): bool
+    {
+        $query = 'DELETE FROM `' . $this->tableName . '` WHERE sales_order_id = :orderId;';
+
+        $statement = $this->db->prepare($query);
+
+        return $statement->execute([
+            "orderId" => $orderId
+        ]);
+    }
 }

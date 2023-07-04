@@ -19,6 +19,9 @@ class OrderSale
         $this->conversion = new Conversion();
     }
 
+    /**
+     * Find order
+     */
     public function findFirst(int|OrderDTO $orderPayload)
     {
         if ($orderPayload instanceof OrderDTO) {
@@ -59,7 +62,10 @@ class OrderSale
         return $orderDto;
     }
 
-    public function create(OrderDTO $orderPayload)
+    /**
+     * Insert order record
+     */
+    public function create(OrderDTO $orderPayload): OrderDTO
     {
         $query = 'INSERT INTO `' . $this->tableName . '` (user_id, total_sales, currency_id, order_status_id) 
         VALUES (:userId, :totalSales, :currencyId, :orderStatusId);';
@@ -76,28 +82,38 @@ class OrderSale
         return $this->findFirst($orderPayload);
     }
 
-    public function update(OrderDTO $orderPayload, string $action)
+    /**
+     * Update order status
+     */
+    public function updateStatus(int $orderId, string $action): OrderDTO
     {
-        $query = "";
-        $param = [];
+        $statusId = null;
 
         switch ($action) {
             case 'paid':
-                $query = 'UPDATE `sales_order` SET order_status_id = :statusId WHERE id = :orderId';
-                $param = [
-                    "statusId" => OrderStatus::Complete,
-                    "orderId" => $orderPayload->id
-                ];
-
+                $statusId = OrderStatus::InProgress->value();
+            case 'cancel':
+                $statusId = OrderStatus::Cancel->value();
                 break;
-
+            case 'complete':
+                $statusId = OrderStatus::Complete->value();
+                break;
             default:
-                # code...
                 break;
         }
 
-        $statement = $this->db->prepare($query);
+        if (!$statusId) return false;
 
+        $query = 'UPDATE `sales_order` SET order_status_id = :statusId WHERE id = :orderId';
+
+        $param = [
+            "statusId" => $statusId,
+            "orderId" => $orderId
+        ];
+
+        $statement = $this->db->prepare($query);
         $statement->execute($param);
+
+        return $this->findFirst($orderId);
     }
 }
