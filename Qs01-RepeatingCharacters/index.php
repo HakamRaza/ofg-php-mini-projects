@@ -1,79 +1,69 @@
-<?php
+<!DOCTYPE HTML>
+<html>
 
+<head>
+    <title>Question One</title>
+</head>
 
-class CharMath
-{
-    /**
-     * Sample inputs to process
-     */
-    private $sampleInputs = [];
+<body>
 
+    <?php
+    // define variables and set to empty values
+    $userInput = "";
+    $inputArray = $outputArr = [];
 
-    /**
-     * Calculate the number of repeating characters for deletions
-     * 
-     * @return int number of repeatition
-     */
-    private function getNumberOfCharRepeats(string $value): int
-    {
-        $wordLength = strlen($value);
-        $numberOfRepetition = 0;
+    // import class
+    require './CharMath.php';
 
-        for ($i = 1; $i < $wordLength; $i++) {
-            if ($value[$i] == $value[$i - 1]) {
-                $numberOfRepetition++;
-            }
-        }
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-        return $numberOfRepetition;
-    }
-
-    /**
-     * Set $sampleInputs for process
-     */
-    public function setInputs(array $sampleInputs): CharMath
-    {
-        $this->sampleInputs = $sampleInputs;
-
-        return $this;
-    }
-
-    /**
-     * Get result
-     */
-    public function get(): void
-    {
-        echo "|"
-            . str_pad("Bil", 4)
-            . "|"
-            . str_pad("Value", 15)
-            . "|"
-            . str_pad("Min", 3)
-            . "|\n";
-
-        echo str_pad('',  26, "-")
-            . "\n";
-
-        foreach ($this->sampleInputs as $key => $value) {
-            $total = $this->getNumberOfCharRepeats($value);
-
-            echo "|"
-                . str_pad(($key + 1), 4)
-                . "|"
-                . str_pad($value, 15)
-                . "|"
-                . str_pad($total, 3)
-                . "|\n";
+        if (empty($_POST["userInput"])) {
+            $userInput = "";
+        } else {
+            $userInput = test_input($_POST["userInput"]);
+            $inputArray = explode(',', $userInput);
+            $charMath = new CharMath();
+            $charMath->setInputs($inputArray);
+            $outputArr = $charMath->get();
         }
     }
-}
 
-$sampleInputs = [
-    'AAAA',
-    'BBBBB',
-    'ABABABAB',
-    'AAABBB',
-];
+    function test_input($data)
+    {
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+        return $data;
+    }
+    ?>
 
-$charMath = new CharMath();
-$charMath->setInputs($sampleInputs)->get();
+    <h2>Minimum Number of Deletions on Repeating Characters Form.</h2>
+    <h3>Example</h3>
+    <p>Input of : `AAAA,BBBBB,ABABABAB,AAABBB` will result in `3,4,0,4`</p>
+    <br>
+
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+        <h3>Fill in the box below with comma seperate values.</h3>
+        <textarea name="userInput" rows="5" cols="40"><?php echo $userInput; ?></textarea>
+        <br><br>
+
+        <input type="submit" name="submit" value="Submit">
+    </form>
+
+    <?php
+    if (count($inputArray) > 0) {
+        echo "<br>";
+        echo "<h2>Your Input:</h2>";
+        echo "<br>";
+        echo "<p>" . implode('<br>', $inputArray) . "</p>";
+        echo "<h2>Output</h2>";
+        echo "<p>" . implode('<br>', $outputArr) . "</p>";
+    } else {
+        echo "<br>";
+        echo "No Input";
+    }
+    ?>
+
+</body>
+
+</html>
