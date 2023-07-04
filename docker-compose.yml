@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  nginx:
+    image: nginx:1.21-alpine
+    ports:
+      - "80:80"
+    expose:
+      - "80"
+    volumes:
+      - ./src/backend:/var/www/backend
+      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: src/backend/
+      args:
+        HOST_UID: $HOST_UID
+    working_dir: /var/www/backend
+    volumes:
+      - ./src/backend:/var/www/backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql/mysql-server:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: mycommerce
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./.docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./.docker/mysql/init:/docker-entrypoint-initdb.d
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u admin --password=$$MYSQL_ROOT_PASSWORD
+      interval: 5s
+      retries: 10
+
+volumes:
+  mysqldata:
