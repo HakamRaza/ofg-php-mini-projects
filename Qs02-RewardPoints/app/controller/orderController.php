@@ -5,10 +5,10 @@ namespace App\Controller;
 use App\DTO\OrderDTO;
 use App\Enums\OrderStatus;
 use App\Enums\TransactionType;
+use App\Helper\Conversion;
 use App\Helper\Response;
 use App\Model\RewardPoints;
 use App\Model\OrderSale;
-use Exception;
 
 /**
  * 
@@ -21,70 +21,96 @@ class OrderController
     protected $order;
     protected $reward;
     protected $response;
+    protected $conversion;
 
     public function __construct()
     {
         $this->order = new OrderSale();
         $this->reward = new RewardPoints();
         $this->response = new Response();
+        $this->conversion = new Conversion();
     }
 
     /**
      * Registed new order
      */
-    public function place(OrderDTO $orderPayload): OrderDTO
+    public function place(OrderDTO $orderPayload): array
     {
         // any point claim ?
-        $pointClaimed = $orderPayload->pointClaimed;
+        $pointClaimed = $this->conversion->convertPointClaimToPointDBRate($orderPayload->currencyId, $orderPayload->pointClaimed);
 
-        // check existing point
+        if (!$pointClaimed) {
+            return $this->response->sendResponse('Currency not recognize', 422);
+        }
+
+        // check existing point enough
         if ($pointClaimed > 0) {
             $currentPoint = $this->reward->available();
 
             if ($currentPoint < $pointClaimed) {
-                throw new Exception('Reward points not enough to be claimed.');
+                return $this->response->sendResponse('Reward points not enough to be claimed.', 422);
             }
         }
 
-        // update status save order
+        // update status and save order
         $orderPayload->setOrderStatusId(OrderStatus::Pending->value());
         $order = $this->order->create($orderPayload);
 
-        // record point floating
+        // record point claim
         if ($pointClaimed > 0) {
             $this->reward->create($order->userId, TransactionType::Debit, $pointClaimed);
         }
 
-        return $order;
+        return $this->response->sendResponse($order);
     }
 
 
-    public function cancel(OrderDTO $orderPayload)
+    public function cancel(int $orderId)
     {
-        // calculate points
+        $order = $this->order->findFirst($orderId);
 
-        // assign points
+        if (!$order) {
+            $this->response->sendResponse('Order not found', 404);
+        }
 
-        //
+        // update order status
+        $this->order->updateStatus($orderId, 'cancel');
+
+        // reset reward points used
+        $this->reward->destroyOrderRecord($orderId);
+
+        return $this->response->sendResponse('Order cancelled', 201);
     }
 
-    public function paid(OrderDTO $orderPayload)
+    public function paid(int $orderId)
     {
-        // calculate points
+        $order = $this->order->findFirst($orderId);
 
-        // assign points
+        if (!$order) {
+            $this->response->sendResponse('Order not found', 404);
+        }
 
-        //
+        // update order status
+        $order = $this->order->updateStatus($orderId, 'paid');
+
+        return $this->response->sendResponse($order, 201);
     }
 
-    public function complete(OrderDTO $orderPayload)
+    public function complete(int $orderId)
     {
-    }
+        $order = $this->order->findFirst($orderId);
 
-    /**
-     * Get effective debit/credit point to be claim for each order
-     */
-    private function calculateEffectivePointClaim(int $totalSales, int $pointClaimed)
-    {
+        if (!$order) {
+            $this->response->sendResponse('Order not found', 404);
+        }
+
+        // update order status
+        $order = $this->order->updateStatus($orderId, 'complete');
+
+        // give points based on currency
+        $rewardPt = $this->conversion->convertPaymentToPointDBRate($order->currencyId, $order->totalSales);
+        $this->reward->create($order->userId, TransactionType::Credit, $rewardPt);
+
+        return $this->response->sendResponse($order, 201);
     }
 }
