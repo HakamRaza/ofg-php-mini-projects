@@ -7,6 +7,7 @@ enum OrderStatus
     case Pending;
     case InProgress;
     case Complete;
+    case Cancel;
 
     public function toSring()
     {
@@ -14,6 +15,7 @@ enum OrderStatus
             self::Pending => 'Pending',
             self::InProgress => 'In Progress',
             self::Complete => 'Complete',
+            self::Cancel => 'Cancel',
         };
     }
 
@@ -23,6 +25,7 @@ enum OrderStatus
             self::Pending => 1,
             self::InProgress => 2,
             self::Complete => 3,
+            self::Cancel => 4,
         };
     }
 }

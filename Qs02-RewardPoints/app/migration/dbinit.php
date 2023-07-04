@@ -99,7 +99,8 @@ class DBInit
       'INSERT INTO `order_status` (`id`, `status`) VALUES 
       (1, "Pending"),
       (2, "In Progress"),
-      (3, "Complete");',
+      (3, "Complete"),
+      (4, "Cancel");',
 
       'INSERT INTO `currency` (`id`, `currency_code`, `country_name`, `conversion_rate_usd`) VALUES 
       (1, "USD", "United States", 1.000000), 
