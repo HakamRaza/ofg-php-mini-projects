@@ -44,16 +44,17 @@ class RewardPoints
      * Add reward point transaction records
      * 
      */
-    public function create(int $userId, TransactionType $type, int $pointClaim): bool
+    public function create(int $userId, int $orderId, int $transactionTypeId, int $pointClaim): bool
     {
-        $query = 'INSERT INTO `' . $this->tableName . '` (user_id, transaction_type_id, points, expired_at, created_at) 
-        VALUES (:userId, :transactionTypeId, :points, DATE_ADD(NOW(), INTERVAL 1 YEAR), NOW());';
+        $query = 'INSERT INTO `' . $this->tableName . '` (user_id, sales_order_id, transaction_type_id, points, expired_at, created_at) 
+        VALUES (:userId, :orderId, :transactionTypeId, :points, DATE_ADD(NOW(), INTERVAL 1 YEAR), NOW());';
 
         $statement = $this->db->prepare($query);
 
         return $statement->execute([
             "userId" => $userId,
-            "transactionTypeId" => $type->value(),
+            "orderId" => $orderId,
+            "transactionTypeId" => $transactionTypeId,
             "points" => $pointClaim
         ]);
     }

@@ -19,6 +19,11 @@ class Conversion
         return $value * 100;
     }
 
+    public function cleanDecimalToInt(float $value): int
+    {
+        return intval(ceil($value));
+    }
+
     public function convertCurrencyToUSD(int $currencyId, int $value): float|null
     {
         $result = (new Currency())->findCurrency($currencyId);
@@ -54,6 +59,8 @@ class Conversion
 
         if (!$UsdRate) return null;
 
-        return $UsdRate * 1;
+        $clean = $this->cleanDecimalToInt($UsdRate);
+
+        return $clean * 1;
     }
 }
