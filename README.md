@@ -31,6 +31,9 @@ In order to start the app, a docker installation is required (https://docs.docke
 4. Build the Dockerfile for the projects:
    ``` bash
    docker compose build project_one
+   ```
+
+   ``` bash
    docker compose build project_two
    ```
 
@@ -48,8 +51,13 @@ In order to start the app, a docker installation is required (https://docs.docke
 
 7. The `nginx` config uses `localhost` as the server name so that no modification to the hosts file is required.
    Port exposed is `:80` for project one and port `:81` for project two.
+   
    ```
-   example endpoint : http://localhost:80
+   Project one endpoint : http://localhost:80
+   ```
+   
+   ```
+   Project two endpoint : http://localhost:81
    ```
 
 ## Technical Diagram
