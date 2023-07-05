@@ -30,7 +30,8 @@ In order to start the app, a docker installation is required (https://docs.docke
 
 4. Build the Dockerfile for the projects:
    ``` bash
-   docker compose build backend
+   docker compose build project_one
+   docker compose build project_two
    ```
 
 5. Start the docker compose in detached mode if you want to use the same terminal:
