@@ -42,7 +42,7 @@ In order to start the app, a docker installation is required (https://docs.docke
 6. Only project two require composer and this project does not require any dependencies:
 
    ```bash
-   docker compose exec backend composer install
+   docker compose exec project_two composer install
    ```
 
 7. The `nginx` config uses `localhost` as the server name so that no modification to the hosts file is required.
