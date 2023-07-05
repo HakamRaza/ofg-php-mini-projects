@@ -5,22 +5,29 @@ services:
     image: nginx:1.21-alpine
     ports:
       - "80:80"
+      - "81:81"
     expose:
       - "80"
+      - "81"
     volumes:
-      - ./src/backend:/var/www/backend
+      - ./Qs01-RepeatingCharacters:/var/www/qs_one
+      - ./Qs02-RewardPoints:/var/www/qs_two
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - backend
+      - project_one
+      - project_two
 
-  backend:
-    build:
-      context: src/backend/
-      args:
-        HOST_UID: $HOST_UID
-    working_dir: /var/www/backend
+  project_one:
+    build: ./Qs01-RepeatingCharacters
+    working_dir: /var/www/qs_one
     volumes:
-      - ./src/backend:/var/www/backend
+      - ./Qs01-RepeatingCharacters:/var/www/qs_one
+
+  project_two:
+    build: ./Qs02-RewardPoints
+    working_dir: /var/www/qs_two
+    volumes:
+      - ./Qs02-RewardPoints:/var/www/qs_two
     depends_on:
       mysql:
         condition: service_healthy
