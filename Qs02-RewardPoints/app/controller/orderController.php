@@ -32,6 +32,16 @@ class OrderController
     }
 
     /**
+     * 
+     */
+    public function get(int $userId)
+    {
+        $orders = $this->order->getUserOrder($userId);
+
+        return $this->response->sendResponse($orders, 200);
+    }
+
+    /**
      * Registed new order
      */
     public function place(OrderDTO $orderPayload): array

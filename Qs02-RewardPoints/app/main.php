@@ -6,20 +6,21 @@ use App\Dto\OrderDTO;
 use App\Helper\Conversion;
 use App\Helper\Response;
 use App\Migration\Init;
-
-require_once __DIR__ . '/vendor/autoload.php';
+use App\Model\RewardPoints;
 
 class Main
 {
     private $controller;
     private $conversion;
     private $response;
+    private $reward;
 
     public function __construct()
     {
         $this->controller = new OrderController();
         $this->conversion = new Conversion();
         $this->response = new Response();
+        $this->reward = new RewardPoints();
     }
 
     public function initDB()
@@ -68,13 +69,18 @@ class Main
         return $this->controller->complete($orderId);
     }
 
-    public function getOrderList()
+    public function getPointLeft()
     {
-        //
+        return $this->reward->available();
+    }
+
+    public function getOrderList(int|string $userId)
+    {
+        return $this->controller->get(intval($userId));
     }
 }
 
-(new Main())->initDB();
+// (new Main())->initDB();
 // (new Main())->placeOrder(1, 1, 200.00, 0.30);
 // (new Main())->placeOrder(1, 2, 130.00, 0.00);
 // (new Main())->cancelOrder(4);

@@ -20,6 +20,20 @@ class OrderSale
     }
 
     /**
+     * Get all order belong to user
+     */
+    public function getUserOrder(int $userId)
+    {
+        $query = 'SELECT * FROM `' . $this->tableName . '` WHERE user_id = :userId;';
+        $statement = $this->db->prepare($query);
+        $statement->execute([
+            "userId" => $userId
+        ]);
+
+        return $statement->fetchAll() ?: [];
+    }
+
+    /**
      * Find order
      */
     public function findFirst(int|OrderDTO $orderPayload)
