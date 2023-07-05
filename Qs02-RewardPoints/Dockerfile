@@ -5,7 +5,10 @@ RUN docker-php-ext-install pdo_mysql bcmath
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-# Configure PHP
+# Run Composer
+RUN composer install
+
+# # Configure PHP
 COPY .docker/php.ini $PHP_INI_DIR/conf.d/opcache.ini
 
 # Use default development configuration
