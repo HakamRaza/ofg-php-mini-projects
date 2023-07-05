@@ -10,8 +10,8 @@ services:
       - "80"
       - "81"
     volumes:
-      - ./Qs01-RepeatingCharacters:/var/www/qs_one
-      - ./Qs02-RewardPoints:/var/www/qs_two
+      - ./Qs01-RepeatingCharacters:/var/www/Qs01-RepeatingCharacters
+      - ./Qs02-RewardPoints:/var/www/Qs02-RewardPoints
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
       - project_one
@@ -19,15 +19,15 @@ services:
 
   project_one:
     build: ./Qs01-RepeatingCharacters
-    working_dir: /var/www/qs_one
+    working_dir: /var/www/Qs01-RepeatingCharacters
     volumes:
-      - ./Qs01-RepeatingCharacters:/var/www/qs_one
+      - ./Qs01-RepeatingCharacters:/var/www/Qs01-RepeatingCharacters
 
   project_two:
     build: ./Qs02-RewardPoints
-    working_dir: /var/www/qs_two
+    working_dir: /var/www/Qs02-RewardPoints
     volumes:
-      - ./Qs02-RewardPoints:/var/www/qs_two
+      - ./Qs02-RewardPoints:/var/www/Qs02-RewardPoints
     depends_on:
       mysql:
         condition: service_healthy
@@ -35,11 +35,11 @@ services:
   mysql:
     image: mysql/mysql-server:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: 
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_ROOT_HOST: "%"
       MYSQL_DATABASE: mycommerce
     ports:
-      - "4000:3306"
+      - "3306:3306"
     volumes:
       - ./.docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./.docker/mysql/init:/docker-entrypoint-initdb.d

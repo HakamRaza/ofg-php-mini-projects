@@ -28,31 +28,24 @@ In order to start the app, a docker installation is required (https://docs.docke
 
 3. A sample .env is given and set up to comply with docker mysql service.
 
-4. As this is development projects. Just directly serve the projects by
-
-   ```bash
-   docker compose up
+4. Build the Dockerfile for the projects:
+   ``` bash
+   docker compose build backend
    ```
 
-   Or also can start the docker compose in detached mode if you want to use the same terminal:
+5. Start the docker compose in detached mode if you want to use the same terminal:
 
    ```bash
    docker compose up -d
    ```
 
-5. Only project two require composer and this project does not require any dependencies, you can just dump-autoload
-
-   ```bash
-   docker compose exec project_two composer dump-autoload
-   ```
-
-   or for easy
+6. Only project two require composer and this project does not require any dependencies:
 
    ```bash
    docker compose exec backend composer install
    ```
 
-6. The `nginx` config uses `localhost` as the server name so that no modification to the hosts file is required.
+7. The `nginx` config uses `localhost` as the server name so that no modification to the hosts file is required.
    Port exposed is `:80` for project one and port `:81` for project two.
    ```
    example endpoint : http://localhost:80
