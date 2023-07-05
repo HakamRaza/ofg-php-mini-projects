@@ -35,11 +35,11 @@ services:
   mysql:
     image: mysql/mysql-server:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: 
       MYSQL_ROOT_HOST: "%"
       MYSQL_DATABASE: mycommerce
     ports:
-      - "3306:3306"
+      - "4000:3306"
     volumes:
       - ./.docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./.docker/mysql/init:/docker-entrypoint-initdb.d

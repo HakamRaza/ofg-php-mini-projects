@@ -31,7 +31,6 @@ class OrderDTO
      */
     public readonly int $totalSales;
 
-
     /**
      * The currency use for the order
      *
@@ -75,7 +74,7 @@ class OrderDTO
      */
     public function setId(int|string $id)
     {
-        $this->id = (int) $id;
+        $this->id = intval($id);
 
         return $this;
     }
@@ -88,7 +87,7 @@ class OrderDTO
      */
     public function setUserId(int|string $userId)
     {
-        $this->userId = (int) $userId;
+        $this->userId = intval($userId);
 
         return $this;
     }
@@ -106,7 +105,6 @@ class OrderDTO
         return $this;
     }
 
-
     /**
      * Setter for currency ID
      * 
@@ -115,7 +113,7 @@ class OrderDTO
      */
     public function setCurrencyId(int|string $currencyId)
     {
-        $this->currencyId = (int) $currencyId;
+        $this->currencyId = intval($currencyId);
 
         return $this;
     }
@@ -128,7 +126,7 @@ class OrderDTO
      */
     public function setOrderStatusId(int|string $orderStatusId)
     {
-        $this->orderStatusId = (int) $orderStatusId;
+        $this->orderStatusId = intval($orderStatusId);
 
         return $this;
     }
@@ -186,6 +184,15 @@ class OrderDTO
         $this->updatedAt = $updatedAt;
 
         return $this;
+    }
+
+    /**
+     * Get effective price for order payment
+     * 
+     */
+    public function getNetPrice()
+    {
+        return $this->totalSales - ($this->pointClaimed ?: 0);
     }
 
     /**

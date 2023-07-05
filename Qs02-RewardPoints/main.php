@@ -4,32 +4,42 @@
 use App\Controller\OrderController;
 use App\Dto\OrderDTO;
 use App\Helper\Conversion;
-use App\Migration\DBInit;
+use App\Helper\Response;
+use App\Migration\Init;
 
-require_once __DIR__ . './vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 class Main
 {
     private $controller;
     private $conversion;
+    private $response;
 
     public function __construct()
     {
         $this->controller = new OrderController();
         $this->conversion = new Conversion();
+        $this->response = new Response();
     }
 
     public function initDB()
     {
-        $init = new DBInit();
-        $init->migrateTable();
+        $init = new Init();
+
+        try {
+            $init->migrateTable();
+
+            return $this->response->sendResponse('Successfully reset DB');
+        } catch (\Throwable $th) {
+            return $this->response->sendResponse('Failed to reset DB', 500);
+        }
     }
 
     public function placeOrder(
         int $userId,
         int $currencyId,
         float $amountOrder,
-        float $amountPointClaim = 0.00,
+        float $amountPointClaim = 0.00
     ) {
         $dateTime = new DateTime();
         $newOrder = new OrderDTO();
@@ -57,10 +67,20 @@ class Main
     {
         return $this->controller->complete($orderId);
     }
+
+    public function getOrderList()
+    {
+        //
+    }
 }
 
-// (new Main())->placeOrder(1, 2, 100.00, 10.00);
-// (new Main())->deliveredOrder(1);
+(new Main())->initDB();
+// (new Main())->placeOrder(1, 1, 200.00, 0.30);
+// (new Main())->placeOrder(1, 2, 130.00, 0.00);
+// (new Main())->cancelOrder(4);
+// (new Main())->cancelOrder(1);
+// (new Main())->payOrder(2);
+// (new Main())->deliveredOrder(2);
 
 
 ?>

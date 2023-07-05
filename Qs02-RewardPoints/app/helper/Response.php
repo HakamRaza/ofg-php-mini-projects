@@ -13,7 +13,7 @@ class Response
     {
         return [
             "code" => $httpCode,
-            "success" => (200 >= $httpCode && $httpCode < 300),
+            "success" => (200 <= $httpCode && $httpCode < 300),
             "data" => $data
         ];
     }

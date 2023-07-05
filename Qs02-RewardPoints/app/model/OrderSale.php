@@ -35,7 +35,7 @@ class OrderSale
             $param = [
                 "userId" => $orderPayload->userId,
                 "createdAt" => $orderPayload->createdAt,
-                "totalSales" => (int) $this->conversion->convertDecimalToInt($orderPayload->totalSales),
+                "totalSales" => $orderPayload->totalSales,
             ];
         } else {
             $query = 'SELECT * FROM `' . $this->tableName . '` 
@@ -57,7 +57,7 @@ class OrderSale
 
         $orderDto = new OrderDTO();
         $orderDto->updateFromQuery($order);
-        $orderDto->setPointClaimed($orderPayload->pointClaimed ?: 0);
+        $orderDto->setPointClaimed($orderPayload instanceof OrderDTO ? $orderPayload->pointClaimed : 0);
 
         return $orderDto;
     }
@@ -74,7 +74,7 @@ class OrderSale
 
         $statement->execute([
             "userId" => $orderPayload->userId,
-            "totalSales" => (int) $this->conversion->convertDecimalToInt($orderPayload->totalSales),
+            "totalSales" => $orderPayload->totalSales,
             "currencyId" => $orderPayload->currencyId,
             "orderStatusId" => $orderPayload->orderStatusId
         ]);
@@ -85,31 +85,43 @@ class OrderSale
     /**
      * Update order status
      */
-    public function updateStatus(int $orderId, string $action): OrderDTO
+    public function updateStatus(int $orderId, string $action): OrderDTO|false
     {
-        $statusId = null;
+        $query = "UPDATE `sales_order` SET order_status_id = :updatedStatus 
+            WHERE id = :orderId AND order_status_id = :currentStatus;";
+
+        $param = null;
 
         switch ($action) {
             case 'paid':
-                $statusId = OrderStatus::InProgress->value();
+                // can only paid if order in 'pending'
+                $param = [
+                    "orderId" => $orderId,
+                    "updatedStatus" => OrderStatus::InProgress->value(),
+                    "currentStatus" => OrderStatus::Pending->value()
+                ];
+                break;
             case 'cancel':
-                $statusId = OrderStatus::Cancel->value();
+                // can only cancel order in 'pending'
+                $param = [
+                    "orderId" => $orderId,
+                    "updatedStatus" => OrderStatus::Cancel->value(),
+                    "currentStatus" => OrderStatus::Pending->value()
+                ];
                 break;
             case 'complete':
-                $statusId = OrderStatus::Complete->value();
+                // can only complete if order 'in progress'
+                $param = [
+                    "orderId" => $orderId,
+                    "updatedStatus" => OrderStatus::Complete->value(),
+                    "currentStatus" => OrderStatus::InProgress->value()
+                ];
                 break;
             default:
                 break;
         }
 
-        if (!$statusId) return false;
-
-        $query = 'UPDATE `sales_order` SET order_status_id = :statusId WHERE id = :orderId';
-
-        $param = [
-            "statusId" => $statusId,
-            "orderId" => $orderId
-        ];
+        if (!$param) return false;
 
         $statement = $this->db->prepare($query);
         $statement->execute($param);
